@@ -8,8 +8,7 @@ RUN apk update \
 # ============
 
 ENV GLUU_VERSION=version_4.0 \
-    GG_DEPS=gluu-gateway-node-deps \
-    KONG_NGINX_HTTP_LUA_SHARED_DICT="gluu_metrics 1M"
+    GG_DEPS=gluu-gateway-node-deps
 
 RUN wget -q https://github.com/GluuFederation/gluu-gateway/raw/${GLUU_VERSION}/${GG_DEPS}.zip -O /tmp/${GG_DEPS}.zip \
     && unzip -q /tmp/${GG_DEPS}.zip -d /tmp \
@@ -24,7 +23,8 @@ RUN sh /tmp/install-plugins.sh \
 # ===
 
 # required in kong.conf
-ENV KONG_PLUGINS="bundled,gluu-oauth-auth,gluu-uma-auth,gluu-uma-pep,gluu-oauth-pep,gluu-metrics,gluu-openid-connect,gluu-opa-pep"
+ENV KONG_PLUGINS="bundled,gluu-oauth-auth,gluu-uma-auth,gluu-uma-pep,gluu-oauth-pep,gluu-metrics,gluu-openid-connect,gluu-opa-pep" \
+    KONG_NGINX_HTTP_LUA_SHARED_DICT="gluu_metrics 1M" 
 
 # =======
 # Cleanup

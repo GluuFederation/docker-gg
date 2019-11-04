@@ -8,7 +8,8 @@ RUN apk update \
 # ============
 
 ENV GLUU_VERSION=version_4.0 \
-    GG_DEPS=gluu-gateway-node-deps
+    GG_DEPS=gluu-gateway-node-deps \
+    KONG_NGINX_HTTP_LUA_SHARED_DICT="gluu_metrics 1M"
 
 RUN wget -q https://github.com/GluuFederation/gluu-gateway/raw/${GLUU_VERSION}/${GG_DEPS}.zip -O /tmp/${GG_DEPS}.zip \
     && unzip -q /tmp/${GG_DEPS}.zip -d /tmp \

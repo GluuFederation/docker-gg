@@ -31,5 +31,6 @@ cd /tmp/${GG_DEPS}/kong \
 # disable builtin plugins
 for plugin in ${DISABLED_PLUGINS}; do
     cp /tmp/${GG_STUB_DIR}/handler.lua ${LUA_DIST}/kong/plugins/${plugin}/
-    cp -R /tmp/${GG_STUB_DIR}/migrations ${LUA_DIST}/kong/plugins/${plugin}
+    rm -f ${LUA_DIST}/kong/plugins/${plugin}/migrations/*
+    rm -f ${LUA_DIST}/kong/plugins/${plugin}/daos.lua
 done

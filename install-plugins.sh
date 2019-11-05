@@ -32,6 +32,5 @@ cd /tmp/${GG_DEPS}/kong \
 for plugin in ${DISABLED_PLUGINS}; do
     cp /tmp/${GG_STUB_DIR}/handler.lua ${LUA_DIST}/kong/plugins/${plugin}/
     rm -f ${LUA_DIST}/kong/plugins/${plugin}/migrations/*
-    cp -R /tmp/${GG_STUB_DIR}/migrations/init.lua ${LUA_DIST}/kong/plugins/${plugin}/migrations/
     rm -f ${LUA_DIST}/kong/plugins/${plugin}/daos.lua
 done

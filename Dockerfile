@@ -7,7 +7,7 @@ RUN apk update \
 # Gluu Gateway
 # ============
 
-ENV GLUU_VERSION=version_4.0 \
+ENV GLUU_VERSION=v4.0.0 \
     GG_DEPS=gluu-gateway-node-deps
 
 RUN wget -q https://github.com/GluuFederation/gluu-gateway/raw/${GLUU_VERSION}/${GG_DEPS}.zip -O /tmp/${GG_DEPS}.zip \
@@ -17,6 +17,20 @@ RUN wget -q https://github.com/GluuFederation/gluu-gateway/raw/${GLUU_VERSION}/$
 COPY install-plugins.sh /tmp/
 RUN sh /tmp/install-plugins.sh \
     && rm -rf /tmp/install-plugins.sh /tmp/${GG_DEPS}
+
+# ===========
+# Metadata
+# ===========
+
+LABEL name="gluu-gateway" \
+    maintainer="Gluu Inc. <support@gluu.org>" \
+    vendor="Gluu Federation" \
+    version="4.0.0" \
+    release="dev" \
+    summary="Gluu gateway " \
+    description="Gluu Gateway (GG) is an API gateway that leverages the Gluu Server for central OAuth client management and access control"
+
+
 
 # ===
 # ENV

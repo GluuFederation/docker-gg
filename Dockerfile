@@ -26,7 +26,7 @@ LABEL name="gluu-gateway" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.0.0" \
-    release="dev" \
+    release="01" \
     summary="Gluu gateway " \
     description="Gluu Gateway (GG) is an API gateway that leverages the Gluu Server for central OAuth client management and access control"
 
@@ -38,7 +38,7 @@ LABEL name="gluu-gateway" \
 
 # required in kong.conf
 ENV KONG_PLUGINS="bundled,gluu-oauth-auth,gluu-uma-auth,gluu-uma-pep,gluu-oauth-pep,gluu-metrics,gluu-openid-connect,gluu-opa-pep" \
-    KONG_NGINX_HTTP_LUA_SHARED_DICT="gluu_metrics 1M" 
+    KONG_NGINX_HTTP_LUA_SHARED_DICT="gluu_metrics 1M"
 
 # =======
 # Cleanup

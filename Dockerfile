@@ -1,7 +1,7 @@
 FROM kong:1.3.0-alpine
 
 RUN apk update \
-    && apk add --no-cache --virtual build-deps unzip
+    && apk add --no-cache --virtual build-deps unzip git openssh
 
 # ============
 # Gluu Gateway
@@ -10,9 +10,22 @@ RUN apk update \
 ENV GLUU_VERSION=v4.0.0 \
     GG_DEPS=gluu-gateway-node-deps
 
-RUN wget -q https://github.com/GluuFederation/gluu-gateway/raw/${GLUU_VERSION}/${GG_DEPS}.zip -O /tmp/${GG_DEPS}.zip \
-    && unzip -q /tmp/${GG_DEPS}.zip -d /tmp \
-    && rm -f /tmp/${GG_DEPS}.zip
+# RUN wget -q https://github.com/GluuFederation/gluu-gateway/raw/${GLUU_VERSION}/${GG_DEPS}.zip -O /tmp/${GG_DEPS}.zip \
+#     && unzip -q /tmp/${GG_DEPS}.zip -d /tmp \
+#     && rm -f /tmp/${GG_DEPS}.zip
+
+RUN mkdir /root/.ssh \
+    && chmod 700 /root/.ssh \
+    && echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa 
+
+# make sure domain is accepted
+RUN touch /root/.ssh/known_hosts \
+    && ssh-keyscan github.com >> /root/.ssh/known_hosts
+
+RUN git clone https://github.com/GluuFederation/gluu-gateway.git /tmp \
+    && cd /tmp/ \
+    && git submodule update --init --recursive \
+    && ls /tmp/third-party
 
 COPY install-plugins.sh /tmp/
 RUN sh /tmp/install-plugins.sh \

@@ -1,7 +1,7 @@
 FROM kong:1.3.0-alpine
 
 RUN apk update \
-    && apk add --no-cache --virtual build-deps unzip git openssh
+    && apk add -Uuv --no-cache --virtual build-deps git openssh bash curl 
 
 # ============
 # Gluu Gateway
@@ -10,21 +10,13 @@ RUN apk update \
 ENV GLUU_VERSION=v4.0.0 \
     GG_DEPS=gluu-gateway-node-deps
 
-# RUN wget -q https://github.com/GluuFederation/gluu-gateway/raw/${GLUU_VERSION}/${GG_DEPS}.zip -O /tmp/${GG_DEPS}.zip \
-#     && unzip -q /tmp/${GG_DEPS}.zip -d /tmp \
-#     && rm -f /tmp/${GG_DEPS}.zip
+# install ONVAULT
+RUN curl -L https://raw.githubusercontent.com/dockito/vault/master/ONVAULT > /usr/local/bin/ONVAULT && \
+    chmod +x /usr/local/bin/ONVAULT 
 
-RUN mkdir /root/.ssh \
-    && chmod 700 /root/.ssh \
-    && echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa 
-
-# make sure domain is accepted
-RUN touch /root/.ssh/known_hosts \
-    && ssh-keyscan github.com >> /root/.ssh/known_hosts
-
-RUN git clone https://github.com/GluuFederation/gluu-gateway.git /tmp \
+RUN ONVAULT git clone https://github.com/GluuFederation/gluu-gateway.git /tmp \
     && cd /tmp/ \
-    && git submodule update --init --recursive \
+    && ONVAULT git submodule update --init --recursive \
     && ls /tmp/third-party
 
 COPY install-plugins.sh /tmp/
@@ -38,7 +30,7 @@ RUN sh /tmp/install-plugins.sh \
 LABEL name="gluu-gateway" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.0.0" \
+    version="4.1.0" \
     release="01" \
     summary="Gluu gateway " \
     description="Gluu Gateway (GG) is an API gateway that leverages the Gluu Server for central OAuth client management and access control"

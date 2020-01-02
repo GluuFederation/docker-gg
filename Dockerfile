@@ -15,7 +15,7 @@ ENV GLUU_VERSION=version_4.1 \
 #     chmod +x /usr/local/bin/ONVAULT 
 RUN git clone --single-branch --branch ${GLUU_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/${GG_DEPS} 
 
-COPY ./.gitmodules /tmp/${GG_DEPS}
+COPY .gitmodules /tmp/${GG_DEPS}
 
 RUN cd /tmp/${GG_DEPS} \
     && git submodule update --init --recursive \

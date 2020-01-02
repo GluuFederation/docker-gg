@@ -18,4 +18,4 @@
 	url = https://github.com/knyar/nginx-lua-prometheus.git
 [submodule "third-party/lua-resty-session"]
 	path = third-party/lua-resty-session
-	url = https://git.github.com/bungle/lua-resty-session.git
+	url = https://github.com/bungle/lua-resty-session.git

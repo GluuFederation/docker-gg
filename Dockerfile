@@ -1,7 +1,7 @@
 FROM kong:1.3.0-alpine
 
 RUN apk update \
-    && apk add -Uuv --no-cache --virtual build-deps git openssh bash curl 
+    && apk add -Uuv --no-cache --virtual build-deps git  
 
 # ============
 # Gluu Gateway
@@ -10,14 +10,12 @@ RUN apk update \
 ENV GLUU_VERSION=version_4.1 \
     GG_DEPS=gluu-gateway-node-deps
 
-# install ONVAULT
-# RUN curl -L https://raw.githubusercontent.com/dockito/vault/master/ONVAULT > /usr/local/bin/ONVAULT && \
-#     chmod +x /usr/local/bin/ONVAULT 
 RUN git clone --single-branch --branch ${GLUU_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/${GG_DEPS} 
 
-COPY .gitmodules /tmp/${GG_DEPS}
+COPY gitmodules /tmp/${GG_DEPS}
 
 RUN cd /tmp/${GG_DEPS} \
+    && cat gitmodules > .gitmodules \
     && git submodule update --init --recursive \
     && rm -rf Dockerfile .dockerignore .gitignore
 

@@ -1,29 +1,51 @@
-FROM kong:1.3.0-alpine
+FROM alpine:3.10 AS build
 
 RUN apk update \
-    && apk add -Uuv --no-cache --virtual build-deps git  
+    && apk add -Uuv --no-cache git
+
+ARG GLUU_VERSION=version_4.1
+
+RUN git clone --recursive --depth 1 --branch ${GLUU_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/
+
+# place all required Lua files in /tmp/lib
+# it would allow to copy it with one COPY directive later
+RUN cp -r /tmp/third-party/lua-resty-hmac/lib/. /tmp/lib/
+RUN cp -r /tmp/third-party/lua-resty-jwt/lib/. /tmp/lib/
+RUN cp -r /tmp/third-party/lua-resty-lrucache/lib/. /tmp/lib/
+RUN cp -r /tmp/third-party/lua-resty-session/lib/. /tmp/lib/
+RUN mkdir /tmp/lib/rucciva && cp /tmp/third-party/json-logic-lua/logic.lua /tmp/lib/rucciva/json_logic.lua
+RUN cp /tmp/third-party/oxd-web-lua/oxdweb.lua /tmp/lib/gluu/
+RUN cp /tmp/third-party/nginx-lua-prometheus/prometheus.lua /tmp/lib/
+
+# ============
+# Main image
+# ============
+
+FROM kong:2.0.1-alpine
+
+ARG LUA_DIST=/usr/local/share/lua/5.1
+ARG DISABLED_PLUGINS="ldap-auth key-auth basic-auth hmac-auth jwt oauth2"
 
 # ============
 # Gluu Gateway
 # ============
 
-ENV GLUU_VERSION=version_4.1 \
-    GG_DEPS=gluu-gateway-node-deps
+# require root rights to replace/remove some existing Kong files
+USER root
 
-RUN git clone --single-branch --branch ${GLUU_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/${GG_DEPS} 
+COPY --from=build  /tmp/lib/ ${LUA_DIST}/
 
-COPY gitmodules /tmp/${GG_DEPS}
+RUN for plugin in ${DISABLED_PLUGINS}; do \
+  cp ${LUA_DIST}/gluu/disable-plugin-handler.lua ${LUA_DIST}/kong/plugins/${plugin}/handler.lua; \
+  rm -f ${LUA_DIST}/kong/plugins/${plugin}/migrations/*; \
+  rm -f ${LUA_DIST}/kong/plugins/${plugin}/daos.lua; \
+  done && \
+  rm ${LUA_DIST}/gluu/disable-plugin-handler.lua
 
-RUN cd /tmp/${GG_DEPS} \
-    && cat gitmodules > .gitmodules \
-    && git submodule update --init --recursive \
-    && rm -rf Dockerfile .dockerignore .gitignore
+# restore
+USER kong
 
-COPY install-plugins.sh /tmp/
-RUN sh /tmp/install-plugins.sh \
-    && rm -rf /tmp/install-plugins.sh /tmp/${GG_DEPS}
-
-# ===========
+#===========
 # Metadata
 # ===========
 
@@ -36,7 +58,6 @@ LABEL name="gluu-gateway" \
     description="Gluu Gateway (GG) is an API gateway that leverages the Gluu Server for central OAuth client management and access control"
 
 
-
 # ===
 # ENV
 # ===
@@ -44,16 +65,11 @@ LABEL name="gluu-gateway" \
 # by default enable all bundled and gluu plugins
 ENV KONG_PLUGINS="bundled,gluu-oauth-auth,gluu-uma-auth,gluu-uma-pep,gluu-oauth-pep,gluu-metrics,gluu-openid-connect,gluu-opa-pep" \
     # required in kong.conf
-    KONG_NGINX_HTTP_LUA_SHARED_DICT="gluu_metrics 1M" 
+    KONG_NGINX_HTTP_LUA_SHARED_DICT="gluu_metrics 1M"
+
 #redirect all logs to Docker
 ENV KONG_PROXY_ACCESS_LOG=/dev/stdout \
     KONG_ADMIN_ACCESS_LOG=/dev/stdout \
     KONG_PROXY_ERROR_LOG=/dev/stderr \
     KONG_ADMIN_ERROR_LOG=/dev/stderr \
     KONG_NGINX_HTTP_LARGE_CLIENT_HEADER_BUFFERS="8 16k"
-
-# =======
-# Cleanup
-# =======
-
-RUN apk del build-deps

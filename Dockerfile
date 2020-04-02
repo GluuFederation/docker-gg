@@ -3,7 +3,7 @@ FROM alpine:3.10 AS build
 RUN apk update \
     && apk add -Uuv --no-cache git
 
-ARG GLUU_VERSION=v4.1.0
+ARG GLUU_VERSION=version_4.2
 
 RUN git clone --recursive --depth 1 --branch ${GLUU_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/
 # place all required Lua files in /tmp/lib

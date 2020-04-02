@@ -3,10 +3,9 @@ FROM alpine:3.10 AS build
 RUN apk update \
     && apk add -Uuv --no-cache git
 
-ARG GLUU_VERSION=version_4.1
+ARG GLUU_VERSION=v4.1.0
 
 RUN git clone --recursive --depth 1 --branch ${GLUU_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/
-
 # place all required Lua files in /tmp/lib
 # it would allow to copy it with one COPY directive later
 RUN cp -r /tmp/third-party/lua-resty-hmac/lib/. /tmp/lib/

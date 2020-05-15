@@ -3,9 +3,9 @@ FROM alpine:3.10 AS build
 RUN apk update \
     && apk add -Uuv --no-cache git
 
-ARG GLUU_VERSION=version_4.2
+ENV GLUU_GATEWAY_VERSION=version_4.2.0
 
-RUN git clone --recursive --depth 1 --branch ${GLUU_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/
+RUN git clone --recursive --depth 1 --branch ${GLUU_GATEWAY_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/
 # place all required Lua files in /tmp/lib
 # it would allow to copy it with one COPY directive later
 RUN cp -r /tmp/third-party/lua-resty-hmac/lib/. /tmp/lib/
@@ -81,7 +81,7 @@ USER kong
 LABEL name="gluu-gateway" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.1.0" \
+    version="4.2.0" \
     release="dev" \
     summary="Gluu gateway " \
     description="Gluu Gateway (GG) is an API gateway that leverages the Gluu Server for central OAuth client management and access control"

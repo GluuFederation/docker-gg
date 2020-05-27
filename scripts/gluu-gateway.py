@@ -19,7 +19,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger("gg-entrypoint")
 
-GLUU_GATEWAY_NAMESPACE = os.environ.get("GLUU_GATEWAY_NAMESPACE", "gluu-gateway")
+GLUU_GATEWAY_NAMESPACE = os.environ.get("GLUU_GATEWAY_NAMESPACE", "kong")
 # In helm deployments
 POD_NAMESPACE = os.environ.get("POD_NAMESPACE", "")
 if POD_NAMESPACE:
@@ -83,7 +83,7 @@ class Kubernetes(object):
                          "GLUU_GATEWAY_NAMESPACE:<kongs-namespace>"
                          "or omit and use defaults : "
                          "GLUU_GATEWAY_KONG_CONF_SECRET_NAME:kong-config\n"
-                         "GLUU_GATEWAY_NAMESPACE:gg-gluu"
+                         "GLUU_GATEWAY_NAMESPACE:kong"
                          "---\n"
                          "Run the following command to create secret:\n"
                          "kubectl create secret generic <my-kongs-declaration-file-secret-name> "
@@ -203,11 +203,19 @@ def get_kong_declarative_config_from_secret():
     kubernetes = Kubernetes()
     kong_declarative_config_from_secret = kubernetes.read_namespaced_secret(name=GLUU_GATEWAY_KONG_CONF_SECRET_NAME,
                                                                             namespace=GLUU_GATEWAY_NAMESPACE)
-    kong_declarative_config_from_secret_encrypted = kong_declarative_config_from_secret.data[kong_conf_filename]
-    kong_declarative_config_from_secret_decrypted = base64.b64decode(
-        kong_declarative_config_from_secret_encrypted).decode("utf-8")
-    kong_declarative_config_from_secret_json = json.loads(kong_declarative_config_from_secret_decrypted)
-    return kong_declarative_config_from_secret_json
+    try:
+        kong_declarative_config_from_secret_encrypted = kong_declarative_config_from_secret.data[kong_conf_filename]
+        kong_declarative_config_from_secret_decrypted = base64.b64decode(
+            kong_declarative_config_from_secret_encrypted).decode("utf-8")
+        kong_declarative_config_from_secret_json = json.loads(kong_declarative_config_from_secret_decrypted)
+        return kong_declarative_config_from_secret_json
+    except KeyError:
+        logger.error("Key {} is not found inside secret {} in namespace {}".format(kong_conf_filename,
+                                                                                   GLUU_GATEWAY_KONG_CONF_SECRET_NAME,
+                                                                                   GLUU_GATEWAY_NAMESPACE))
+        logger.info("Retrying to read secret in 30 secs...")
+        time.sleep(30)
+        get_kong_declarative_config_from_secret()
 
 
 def main():

@@ -71,15 +71,6 @@ RUN for plugin in ${DISABLED_PLUGINS}; do \
   rm ${LUA_DIST}/gluu/disable-plugin-handler.lua
 RUN chmod +x /app/scripts/entrypoint.sh
 
-# ==========
-# GG entrypoint
-# ==========
-
-RUN python3 /app/scripts/gluu-gateway.py &
-
-# restore
-USER kong
-
 #===========
 # Metadata
 # ===========

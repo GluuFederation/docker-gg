@@ -177,19 +177,24 @@ def load_kong_declarative_config(kong_declarative_config_from_secret):
     :return:
     """
     admin_ip_port = find_admin_ip_port()
-    response = requests.post("https://" + admin_ip_port + "/config",
-                             json=kong_declarative_config_from_secret, verify=False)
-    if response.status_code == 201:
-        logger.info("Status-code: " + str(response.status_code) +
-                    " -  Kong declarative config file successfully loaded")
-        logger.debug("Response of loading Kong declarative config file can be found at /gg/gg_kong_load.log")
-        json_response = response.json()
-        datetime_object = str(datetime.datetime.now())
-        with open(Path("/gg/gg_kong_load.log"), "a+") as file:
-            file.write(datetime_object + " - " + str(json_response))
-            file.write("\n--------------------------------------------\n")
-    else:
-        logger.error(response.content)
+    try:
+        response = requests.post("https://" + admin_ip_port + "/config",
+                                 json=kong_declarative_config_from_secret, verify=False)
+        if response.status_code == 201:
+            logger.info("Status-code: " + str(response.status_code) +
+                        " -  Kong declarative config file successfully loaded")
+            logger.debug("Response of loading Kong declarative config file can be found at /gg/gg_kong_load.log")
+            json_response = response.json()
+            datetime_object = str(datetime.datetime.now())
+            with open(Path("/gg/gg_kong_load.log"), "a+") as file:
+                file.write(datetime_object + " - " + str(json_response))
+                file.write("\n--------------------------------------------\n")
+        else:
+            logger.error(response.content)
+    except (ConnectionRefusedError, Exception) as e:
+        logger.debug(e)
+        logger.error("There is an issue with the connection to kong. Kong maybe starting. Retry in 30 secs")
+        load_kong_declarative_config(kong_declarative_config_from_secret)
 
 
 def dump_kong_declarative_config(settings):

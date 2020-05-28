@@ -193,7 +193,8 @@ def load_kong_declarative_config(kong_declarative_config_from_secret):
             logger.error(response.content)
     except (ConnectionRefusedError, Exception) as e:
         logger.debug(e)
-        logger.error("There is an issue with the connection to kong. Kong maybe starting. Retry in 30 secs")
+        logger.error("There is an issue with the connection to kong. Kong maybe starting. Retry in 10 secs")
+        time.sleep(10)
         load_kong_declarative_config(kong_declarative_config_from_secret)
 
 

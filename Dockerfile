@@ -58,7 +58,7 @@ USER root
 RUN apk add --no-cache --virtual .build-deps g++ python3-dev libffi-dev openssl-dev && \
     apk add --no-cache --update python3 && \
     pip3 install --upgrade pip setuptools \
-    && pip3 install requests kubernetes
+    && pip3 install requests kubernetes psutil
 
 COPY --from=build  /tmp/lib/ ${LUA_DIST}/
 COPY scripts /app/scripts
@@ -70,6 +70,12 @@ RUN for plugin in ${DISABLED_PLUGINS}; do \
   done && \
   rm ${LUA_DIST}/gluu/disable-plugin-handler.lua
 RUN chmod +x /app/scripts/entrypoint.sh
+
+# ==========
+# GG entrypoint
+# ==========
+
+RUN python3 /app/scripts/gluu-gateway.py &
 
 # restore
 USER kong

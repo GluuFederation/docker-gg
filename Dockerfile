@@ -33,7 +33,7 @@ ENV LUA_DIST=/usr/local/share/lua/5.1 \
 ENV GLUU_GATEWAY_NAMESPACE="kong" \
     GLUU_GATEWAY_KONG_CONF_SECRET_NAME="kong-config" \
     GLUU_GATEWAY_KONG_DBLESS_CONF_INTERVAL_CHECK=60 \
-    GLUU_GATEWAY_KONG_DECLARATIVE_CONFIG="/etc/kong.yml" \
+    GLUU_GATEWAY_KONG_DECLARATIVE_CONFIG="/gg/kong.yml" \
     GLUU_PLUGINS="gluu-oauth-auth,gluu-uma-auth,gluu-uma-pep,gluu-oauth-pep,gluu-metrics,gluu-openid-connect,gluu-opa-pep"
 # by default enable all bundled and gluu plugins
 ENV KONG_PLUGINS="bundled,"$GLUU_PLUGINS \
@@ -61,7 +61,8 @@ RUN apk add --no-cache --virtual .build-deps g++ python3-dev libffi-dev openssl-
     && pip3 install requests kubernetes psutil
 
 COPY --from=build  /tmp/lib/ ${LUA_DIST}/
-COPY scripts /app/scripts
+RUN mkdir gg
+COPY scripts /gg/scripts
 
 RUN for plugin in ${DISABLED_PLUGINS}; do \
   cp ${LUA_DIST}/gluu/disable-plugin-handler.lua ${LUA_DIST}/kong/plugins/${plugin}/handler.lua; \
@@ -69,12 +70,15 @@ RUN for plugin in ${DISABLED_PLUGINS}; do \
   rm -f ${LUA_DIST}/kong/plugins/${plugin}/daos.lua; \
   done && \
   rm ${LUA_DIST}/gluu/disable-plugin-handler.lua
-RUN chmod +x /app/scripts/entrypoint.sh
+RUN chown -R 1000:1000 /gg \
+    && chgrp -R 0 /gg  && chmod -R g=u /gg \
+    && chmod +x /gg/scripts/entrypoint.sh \
+    && chmod +x /gg/scripts/gluu-gateway.py
 
-#===========
+USER kong
+#============
 # Metadata
 # ===========
-
 LABEL name="gluu-gateway" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
@@ -83,4 +87,4 @@ LABEL name="gluu-gateway" \
     summary="Gluu gateway " \
     description="Gluu Gateway (GG) is an API gateway that leverages the Gluu Server for central OAuth client management and access control"
 
-ENTRYPOINT ["/app/scripts/entrypoint.sh"]
+ENTRYPOINT ["/gg/scripts/entrypoint.sh"]

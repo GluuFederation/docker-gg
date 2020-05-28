@@ -28,7 +28,7 @@ if POD_NAMESPACE:
 
 GLUU_GATEWAY_KONG_CONF_SECRET_NAME = os.environ.get("GLUU_GATEWAY_KONG_CONF_SECRET_NAME", "kong-config")
 KONG_DATABASE = os.environ.get("KONG_DATABASE", "off")
-GLUU_GATEWAY_KONG_DECLARATIVE_CONFIG = os.environ.get("GLUU_GATEWAY_KONG_DECLARATIVE_CONFIG", "/etc/kong.yml")
+GLUU_GATEWAY_KONG_DECLARATIVE_CONFIG = os.environ.get("GLUU_GATEWAY_KONG_DECLARATIVE_CONFIG", "/gg/kong.yml")
 KONG_ADMIN_LISTEN = os.environ.get("KONG_ADMIN_LISTEN", "127.0.0.1:8444")
 KONG_DECLARATIVE_CONFIG = os.environ.get("KONG_DECLARATIVE_CONFIG", "")
 
@@ -57,7 +57,7 @@ def load_kubernetes_config():
 
 def check_if_process_is_running(process_name):
     """"
-    Check if there is any running process that contains the given name processName.
+    Check if there is any running process that contains the given name process_name.
     """
     # Iterate over the all the running process
     for process in psutil.process_iter():
@@ -182,10 +182,10 @@ def load_kong_declarative_config(kong_declarative_config_from_secret):
     if response.status_code == 201:
         logger.info("Status-code: " + str(response.status_code) +
                     " -  Kong declarative config file successfully loaded")
-        logger.debug("Response of loading Kong declarative config file can be found at /etc/gg_kong_load.log")
+        logger.debug("Response of loading Kong declarative config file can be found at /gg/gg_kong_load.log")
         json_response = response.json()
         datetime_object = str(datetime.datetime.now())
-        with open(Path("/etc/gg_kong_load.log"), "a+") as file:
+        with open(Path("/gg/gg_kong_load.log"), "a+") as file:
             file.write(datetime_object + " - " + str(json_response))
             file.write("\n--------------------------------------------\n")
     else:
@@ -216,7 +216,7 @@ def get_kong_declarative_config_from_secret():
     in namespace GLUU_GATEWAY_NAMESPACE
     :return:
     """
-    kong_conf_filename = GLUU_GATEWAY_KONG_DECLARATIVE_CONFIG.lstrip("/etc/")
+    kong_conf_filename = GLUU_GATEWAY_KONG_DECLARATIVE_CONFIG.lstrip("/gg/")
     kubernetes = Kubernetes()
     kong_declarative_config_from_secret = kubernetes.read_namespaced_secret(name=GLUU_GATEWAY_KONG_CONF_SECRET_NAME,
                                                                             namespace=GLUU_GATEWAY_NAMESPACE)
@@ -238,7 +238,7 @@ def get_kong_declarative_config_from_secret():
 def main():
     if KONG_DATABASE == "off":
         while True:
-            if not check_if_process_is_running("entrypoint.sh") and not check_if_process_is_running("nginx"):
+            if not check_if_process_is_running("entrypoint.sh") or not check_if_process_is_running("nginx"):
                 # kong processes are not running
                 logger.info("Waiting for kong to start")
                 time.sleep(30)

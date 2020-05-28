@@ -33,7 +33,7 @@ ENV LUA_DIST=/usr/local/share/lua/5.1 \
 ENV GLUU_GATEWAY_NAMESPACE="kong" \
     GLUU_GATEWAY_KONG_CONF_SECRET_NAME="kong-config" \
     GLUU_GATEWAY_KONG_DBLESS_CONF_INTERVAL_CHECK=60 \
-    GLUU_GATEWAY_KONG_DECLARATIVE_CONFIG="/etc/gg-kong.yml" \
+    GLUU_GATEWAY_KONG_DECLARATIVE_CONFIG="/etc/kong.yml" \
     GLUU_PLUGINS="gluu-oauth-auth,gluu-uma-auth,gluu-uma-pep,gluu-oauth-pep,gluu-metrics,gluu-openid-connect,gluu-opa-pep"
 # by default enable all bundled and gluu plugins
 ENV KONG_PLUGINS="bundled,"$GLUU_PLUGINS \

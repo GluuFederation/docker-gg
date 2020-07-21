@@ -2,8 +2,10 @@
 
 Here you can see an overview of changes between each release.
 
-## Version 4.0.0_01
+## Version 4.2.0_01
 
-Released on November 20th, 2019.
+Released on July 21st, 2020.
 
-* First stable release.
+* Upgraded to Kong 2.0.4.
+* Support for DB and DB-less mode.
+* Added support for declarative config (for DB-less mode).

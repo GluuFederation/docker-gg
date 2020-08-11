@@ -3,7 +3,7 @@ FROM alpine:3.10 AS build
 RUN apk update \
     && apk add -Uuv --no-cache git
 
-ENV GLUU_GATEWAY_VERSION=version_4.2.0
+ENV GLUU_GATEWAY_VERSION=version_4.2.1
 
 RUN git clone --recursive --depth 1 --branch ${GLUU_GATEWAY_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/
 # place all required Lua files in /tmp/lib
@@ -19,7 +19,7 @@ RUN cp /tmp/third-party/nginx-lua-prometheus/prometheus.lua /tmp/lib/
 # Main image
 # ============
 
-FROM kong:2.0.4-alpine
+FROM kong:2.1.1-alpine
 
 ENV LUA_DIST=/usr/local/share/lua/5.1 \
     DISABLED_PLUGINS="ldap-auth key-auth basic-auth hmac-auth jwt oauth2"
@@ -82,8 +82,8 @@ USER kong
 LABEL name="gluu-gateway" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.2.0" \
-    release="01" \
+    version="4.2.1" \
+    release="dev" \
     summary="Gluu gateway " \
     description="Gluu Gateway (GG) is an API gateway that leverages the Gluu Server for central OAuth client management and access control"
 

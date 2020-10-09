@@ -86,7 +86,7 @@ LABEL name="gluu-gateway" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
     version="4.2.1" \
-    release="02" \
+    release="03" \
     summary="Gluu gateway " \
     description="Gluu Gateway (GG) is an API gateway that leverages the Gluu Server for central OAuth client management and access control"
 

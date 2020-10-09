@@ -21,7 +21,7 @@ RUN cp /tmp/third-party/nginx-lua-prometheus/prometheus.lua /tmp/lib/
 # Main image
 # ============
 
-FROM kong:2.1.1-alpine
+FROM kong:2.1.4-alpine
 
 ENV LUA_DIST=/usr/local/share/lua/5.1 \
     DISABLED_PLUGINS="ldap-auth key-auth basic-auth hmac-auth jwt oauth2"
@@ -72,7 +72,8 @@ RUN for plugin in ${DISABLED_PLUGINS}; do \
   rm -f ${LUA_DIST}/kong/plugins/${plugin}/daos.lua; \
   done && \
   rm ${LUA_DIST}/gluu/disable-plugin-handler.lua
-RUN chown -R 1000:1000 /gg \
+
+RUN chown -R kong /gg \
     && chgrp -R 0 /gg  && chmod -R g=u /gg \
     && chmod +x /gg/scripts/entrypoint.sh \
     && chmod +x /gg/scripts/gluu-gateway.py

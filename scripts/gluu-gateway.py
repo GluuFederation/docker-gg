@@ -183,12 +183,15 @@ def load_kong_declarative_config(kong_declarative_config_from_secret):
         if response.status_code == 201:
             logger.info("Status-code: " + str(response.status_code) +
                         " -  Kong declarative config file successfully loaded")
-            logger.debug("Response of loading Kong declarative config file can be found at /gg/gg_kong_load.log")
-            json_response = response.json()
-            datetime_object = str(datetime.datetime.now())
-            with open(Path("/gg/gg_kong_load.log"), "a+") as file:
-                file.write(datetime_object + " - " + str(json_response))
-                file.write("\n--------------------------------------------\n")
+            try:
+                logger.debug("Response of loading Kong declarative config file can be found at /gg/gg_kong_load.log")
+                json_response = response.json()
+                datetime_object = str(datetime.datetime.now())
+                with open(Path("/gg/gg_kong_load.log"), "a+") as file:
+                    file.write(datetime_object + " - " + str(json_response))
+                    file.write("\n--------------------------------------------\n")
+            except Exception as exc:
+                logger.debug(f"Uncaught error={exc}")
         else:
             logger.error(response.content)
     except (ConnectionRefusedError, Exception) as e:

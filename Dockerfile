@@ -3,8 +3,8 @@ FROM alpine:3.10 AS build
 RUN apk update \
     && apk add -Uuv --no-cache git
 
-ENV GLUU_GATEWAY_VERSION=version_4.2.1
-ENV GLUU_GATEWAY_COMMIT_ID=97ae430e3a1f32e9c50dcabe3223e32c748d9f01
+ENV GLUU_GATEWAY_VERSION=version_4.2.2
+ENV GLUU_GATEWAY_COMMIT_ID=297dc1bba01bb192a72aaf84fc225199b3a4691b
 
 RUN git clone --recursive --depth 1 --branch ${GLUU_GATEWAY_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/
 # place all required Lua files in /tmp/lib
@@ -21,7 +21,7 @@ RUN cp /tmp/third-party/nginx-lua-prometheus/prometheus.lua /tmp/lib/
 # Main image
 # ============
 
-FROM kong:2.1.4-alpine
+FROM kong:2.2.1-alpine
 
 ENV LUA_DIST=/usr/local/share/lua/5.1 \
     DISABLED_PLUGINS="ldap-auth key-auth basic-auth hmac-auth jwt oauth2"

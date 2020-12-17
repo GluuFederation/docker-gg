@@ -4,7 +4,7 @@ RUN apk update \
     && apk add -Uuv --no-cache git
 
 ENV GLUU_GATEWAY_VERSION=version_4.2.2
-ENV GLUU_GATEWAY_COMMIT_ID=297dc1bba01bb192a72aaf84fc225199b3a4691b
+ENV GLUU_GATEWAY_COMMIT_ID=0ffd07abecbbfdfe0891353d90904d9434c39af5
 
 RUN git clone --recursive --depth 1 --branch ${GLUU_GATEWAY_VERSION} https://github.com/GluuFederation/gluu-gateway.git /tmp/
 # place all required Lua files in /tmp/lib
@@ -85,8 +85,8 @@ USER kong
 LABEL name="gluu-gateway" \
     maintainer="Gluu Inc. <support@gluu.org>" \
     vendor="Gluu Federation" \
-    version="4.2.1" \
-    release="03" \
+    version="4.2.2" \
+    release="01" \
     summary="Gluu gateway " \
     description="Gluu Gateway (GG) is an API gateway that leverages the Gluu Server for central OAuth client management and access control"
 
